@@ -29,7 +29,6 @@
 #include <QUuid>
 #include <QLoggingCategory>
 
-
 Server::Server(Virtlyst *parent) : Controller(parent)
   , m_virtlyst(parent)
 {
