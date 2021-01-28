@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "virtlyst.h"
+#include "lib/generic.h"
 
 #include <Cutelyst/Plugins/View/Grantlee/grantleeview.h>
 #include <Cutelyst/Plugins/Utils/Sql>
@@ -165,6 +166,11 @@ QVector<ServerConn *> Virtlyst::servers(QObject *parent)
     return ret;
 }
 
+ServerConn* Virtlyst::server(const QString &id)
+{
+    return m_connections.value(id);
+}
+
 Connection *Virtlyst::connection(const QString &id, QObject *parent)
 {
     ServerConn *server = m_connections.value(id);
@@ -235,7 +241,7 @@ bool Virtlyst::createDbFlavor(QSqlQuery &query, const QString &label, int memory
 void Virtlyst::updateConnections()
 {
     QSqlQuery query = CPreparedSqlQueryThreadForDB(
-                QStringLiteral("SELECT id, name, hostname, login, password, type FROM servers_compute"),
+                QStringLiteral("SELECT id, name, hostname, login, password, type, driver FROM servers_compute"),
                 QStringLiteral("virtlyst"));
     if (!query.exec()) {
         qCWarning(VIRTLYST) << "Failed to get connections list";
@@ -249,6 +255,7 @@ void Virtlyst::updateConnections()
         const QString login = query.value(3).toString();
         const QString password = query.value(4).toString();
         int type = query.value(5).toInt();
+        int driver = query.value(6).toInt();
         ids << id;
 
         ServerConn *server = m_connections.value(id);
@@ -268,28 +275,32 @@ void Virtlyst::updateConnections()
         }
 
         server->name = name;
+        server->driver = driver;
         server->hostname = hostname;
         server->login = login;
         server->password = password;
         server->type = type;
         QUrl url;
+
+        QString sdriver = server->driverAsString();
+
         switch (type) {
         case ServerConn::ConnSocket:
-            url = QStringLiteral("qemu:///system");
+            url = sdriver + QStringLiteral(":///system");
             break;
         case ServerConn::ConnSSH:
-            url = QStringLiteral("qemu+ssh:///system");
+            url = sdriver + QStringLiteral("+ssh:///system");
             url.setHost(hostname);
             url.setUserName(login);
             break;
         case ServerConn::ConnTCP:
-            url = QStringLiteral("qemu+tcp:///system");
+            url = sdriver + QStringLiteral("+tcp:///system");
             url.setHost(hostname);
             url.setUserName(login);
             url.setPassword(password);
             break;
         case ServerConn::ConnTLS:
-            url = QStringLiteral("qemu+tls:///system");
+            url = sdriver + QStringLiteral("+tls:///system");
             url.setHost(hostname);
             url.setUserName(login);
             url.setPassword(password);
@@ -355,6 +366,7 @@ bool Virtlyst::createDB()
     if (!query.exec(QStringLiteral("CREATE TABLE servers_compute "
                                    "( id integer NOT NULL PRIMARY KEY"
                                    ", name varchar(20) NOT NULL"
+                                   ", driver integer NOT NULL"
                                    ", hostname varchar(20) NOT NULL"
                                    ", login varchar(20) NOT NULL"
                                    ", password varchar(14)"
@@ -399,6 +411,11 @@ bool ServerConn::alive()
     return false;
 }
 
+QString ServerConn::driverAsString()
+{
+    return QString(QtEnumToString<DriverType>(driver));
+}
+
 ServerConn *ServerConn::clone(QObject *parent)
 {
     auto ret = new ServerConn(parent);
@@ -409,6 +426,7 @@ ServerConn *ServerConn::clone(QObject *parent)
     ret->password = password;
     ret->type = type;
     ret->url = url;
+    ret->driver = driver;
 
     if (!conn->isAlive()) {
         delete conn;

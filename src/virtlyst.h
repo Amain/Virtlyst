@@ -36,6 +36,9 @@ class ServerConn : public QObject
     Q_PROPERTY(int type MEMBER type CONSTANT)
     Q_PROPERTY(int id MEMBER id CONSTANT)
     Q_PROPERTY(bool alive READ alive CONSTANT)
+    //Q_PROPERTY(int driver MEMBER type CONSTANT)
+    Q_PROPERTY(QString driver READ driverAsString CONSTANT)
+    Q_ENUMS(DriverType)
 public:
     enum ServerType {
         ConnTCP = 1,
@@ -43,11 +46,19 @@ public:
         ConnTLS,
         ConnSocket,
     };
+    /* Libvirt driver */
+    enum DriverType {
+        xen = 1,
+        qemu,
+        DriverTypeFirst = xen, DriverTypeLast = qemu
+    }; Q_ENUM(DriverType);
     ServerConn(QObject *parent) : QObject(parent) {}
     ~ServerConn() {}
 
     bool alive();
     ServerConn *clone(QObject *parent);
+
+    QString driverAsString();
 
     int id;
     QString name;
@@ -55,6 +66,7 @@ public:
     QString login;
     QString password;
     int type;
+    int driver;
     QUrl url;
     Connection *conn = nullptr;
 };
@@ -73,6 +85,8 @@ public:
     bool postFork() override;
 
     QVector<ServerConn *> servers(QObject *parent);
+
+    ServerConn* server(const QString &id);
 
     Connection *connection(const QString &id, QObject *parent);
 

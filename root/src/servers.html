@@ -78,6 +78,7 @@
                                     </button>
                                 </form>
                                 <p>
+                                <p><strong>{% i18n "Hypervisor" %}:</strong> {{ _(host.driver) }}</p>
                                 <p><strong>{% i18n "Type" %}:</strong> [
                                     {% if host.type == 1 %}TCP
                                     {% elif host.type == 2 %}SSH
@@ -260,9 +261,9 @@
                 <div class="tabbable">
                     <ul class="nav nav-tabs">
                         <li class="active">
-                            <a href="#1" data-toggle="tab">{% i18n "TCP Connections" %}</a>
+                            <a href="#1" data-toggle="tab">{% i18n "TCP Connection" %}</a>
                         </li>
-                        <li><a href="#2" data-toggle="tab">{% i18n "SSH Connections" %}</a></li>
+                        <li><a href="#2" data-toggle="tab">{% i18n "SSH Connection" %}</a></li>
                         <li><a href="#3" data-toggle="tab">{% i18n "TLS Connection" %}</a></li>
                         <li><a href="#4" data-toggle="tab">{% i18n "Local Socket" %}</a></li>
                     </ul>
@@ -278,6 +279,18 @@
                                            maxlength="20" required pattern="[a-z0-9\.\-_]+">
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"> {% i18n "Hypervisor" %}</label>
+                                <div class="col-sm-6">
+                                    <select name="driver" class="form-control">
+                                        {% for key, value in drivers.items %}
+                                            <option value="{{ key }}">{{ _(value) }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">{% i18n "FQDN / IP" %}</label>
 
@@ -324,6 +337,18 @@
                                            maxlength="20" required pattern="[a-z0-9\.\-_]+">
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"> {% i18n "Hypervisor" %}</label>
+                                <div class="col-sm-6">
+                                    <select name="driver" class="form-control">
+                                        {% for key, value in drivers.items %}
+                                            <option value="{{ key }}">{{ _(value) }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">{% i18n "FQDN / IP" %}</label>
 
@@ -357,6 +382,16 @@
                                 <div class="col-sm-6">
                                     <input type="text" name="name" class="form-control" placeholder="Label Name"
                                            maxlength="20" required pattern="[a-z0-9\.\-_]+">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"> {% i18n "Hypervisor" %}</label>
+                                <div class="col-sm-6">
+                                    <select name="driver" class="form-control">
+                                        {% for key, value in drivers.items %}
+                                            <option value="{{ key }}">{{ _(value) }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -400,6 +435,16 @@
                                 <div class="col-sm-6">
                                     <input type="text" name="name" class="form-control" placeholder="Label Name"
                                            maxlength="20" required pattern="[a-z0-9\.\-_]+">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label"> {% i18n "Hypervisor" %}</label>
+                                <div class="col-sm-6">
+                                    <select name="driver" class="form-control">
+                                        {% for key, value in drivers.items %}
+                                            <option value="{{ key }}">{{ _(value) }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="modal-footer">

@@ -16,6 +16,8 @@
  */
 #include "create.h"
 
+#include "lib/generic.h"
+
 #include "virtlyst.h"
 #include "lib/connection.h"
 #include "lib/storagepool.h"
@@ -52,6 +54,16 @@ void Create::index(Context *c, const QString &hostId)
     c->setStash(QStringLiteral("host"), QVariant::fromValue(conn));
     c->setStash(QStringLiteral("host_id"), hostId);
     c->setStash(QStringLiteral("template"), QStringLiteral("create.html"));
+
+    c->setStash(QStringLiteral("create_enabled"), QString("1"));
+    ServerConn * server = m_virtlyst->server(hostId);
+    if(server) {
+        c->setStash(QStringLiteral("driver"), QString(QtEnumToString<ServerConn::DriverType>(server->driver)));
+
+        if(server->driver == ServerConn::DriverType::xen){
+            c->setStash(QStringLiteral("create_enabled"), QString("0"));
+        }
+    }
 
     const QVector<Domain *> domains = conn->domains(
                 VIR_CONNECT_LIST_DOMAINS_ACTIVE | VIR_CONNECT_LIST_DOMAINS_INACTIVE, c);

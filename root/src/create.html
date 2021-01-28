@@ -1,506 +1,516 @@
 {% extends "base.html" %}
+
 {% block title %}{% i18n "Create Instance" %}{% endblock %}
 {% block style %}
     <link href="/static/css/bootstrap-multiselect.css" rel="stylesheet">
 {% endblock %}
 {% block content %}
     {% include 'sidebar.html' %}
-    <div class="main col-xs-12 col-sm-9">
-        {% if error_msg %}
+
+    {% if create_enabled == "1" %}
+
+        <div class="main col-xs-12 col-sm-9">
+            {% if error_msg %}
+                    <div class="alert alert-danger">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        {{ error_msg }}
+                    </div>
+            {% endif %}
+            {% if form.label.errors %}
                 <div class="alert alert-danger">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    {{ error_msg }}
+                    {% for error in form.label.errors %}
+                        {{ error }}
+                    {% endfor %}
                 </div>
-        {% endif %}
-        {% if form.label.errors %}
-            <div class="alert alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {% for error in form.label.errors %}
-                    {{ error }}
-                {% endfor %}
+            {% endif %}
+            {% if form.vcpu.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {% for error in form.vcpu.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.memory.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {% for error in form.memory.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.disk.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {% for error in form.disk.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% if form.networks.errors %}
+                <div class="alert alert-danger">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {% for error in form.networks.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="btn-group-sm">
+                <a data-toggle="modal" href="#addCustom" class="btn btn-success">{% i18n "Custom Instance" %}</a>
+                <a data-toggle="modal" href="#addFromTemp" class="btn btn-success">{% i18n "From Template" %}</a>
+                <a data-toggle="modal" href="#addFromXML" class="btn btn-success">{% i18n "From XML" %}</a>
+                <a data-toggle="modal" href="#addFlavor" class="btn btn-success pull-right">{% i18n "New Flavor" %}</a>
             </div>
-        {% endif %}
-        {% if form.vcpu.errors %}
-            <div class="alert alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {% for error in form.vcpu.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if form.memory.errors %}
-            <div class="alert alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {% for error in form.memory.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if form.disk.errors %}
-            <div class="alert alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {% for error in form.disk.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if form.networks.errors %}
-            <div class="alert alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {% for error in form.networks.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-        <div class="btn-group-sm">
-            <a data-toggle="modal" href="#addCustom" class="btn btn-success">{% i18n "Custom Instance" %}</a>
-            <a data-toggle="modal" href="#addFromTemp" class="btn btn-success">{% i18n "From Template" %}</a>
-            <a data-toggle="modal" href="#addFromXML" class="btn btn-success">{% i18n "From XML" %}</a>
-            <a data-toggle="modal" href="#addFlavor" class="btn btn-success pull-right">{% i18n "New Flavor" %}</a>
-        </div>
-        {% if flavors %}
-            <br />
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>{% i18n "Name" %}</th>
-                        <th>{% i18n "VCPU's" %}</th>
-                        <th>{% i18n "RAM" %}</th>
-                        <th>{% i18n "HDD" %}</th>
-                        <th colspan="2">{% i18n "Action" %}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for flavor in flavors %}
+            {% if flavors %}
+                <br />
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
                         <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ flavor.label }}</td>
-                            <td>{{ flavor.vcpu }}</td>
-                            <td>{{ flavor.memory }} {% i18n "MiB" %}</td>
-                            <td>{{ flavor.disk }} {% i18n "GiB" %}</td>
-                            <td style="width:5px;">
-                                <div class="modal fade" id="addVMflavor{{ forloop.counter }}" tabindex="-1" role="dialog"
-                                     aria-labelledby="addVMFlavorLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                        aria-hidden="true">&times;</button>
-                                                <h4 class="modal-title">{% i18n "Create Virtual Machine" %}
-                                                    ({{ flavor.label }})</h4>
-                                            </div>
-                                            <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
-
-                                                    <div class="col-sm-6">
-                                                        <input type="text" class="form-control" name="name"
-                                                               placeholder="{% i18n "Name" %}" maxlength="14" required
-                                                               pattern="[a-zA-Z0-9\.\-_]+">
-                                                        <input type="hidden" name="vcpu" value="{{ flavor.vcpu }}">
-                                                        <input type="hidden" name="memory" value="{{ flavor.memory }}">
-                                                        <input type="hidden" name="hdd_size" value="{{ flavor.disk }}">
-                                                    </div>
+                            <th>#</th>
+                            <th>{% i18n "Name" %}</th>
+                            <th>{% i18n "VCPU's" %}</th>
+                            <th>{% i18n "RAM" %}</th>
+                            <th>{% i18n "HDD" %}</th>
+                            <th colspan="2">{% i18n "Action" %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for flavor in flavors %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ flavor.label }}</td>
+                                <td>{{ flavor.vcpu }}</td>
+                                <td>{{ flavor.memory }} {% i18n "MiB" %}</td>
+                                <td>{{ flavor.disk }} {% i18n "GiB" %}</td>
+                                <td style="width:5px;">
+                                    <div class="modal fade" id="addVMflavor{{ forloop.counter }}" tabindex="-1" role="dialog"
+                                        aria-labelledby="addVMFlavorLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-hidden="true">&times;</button>
+                                                    <h4 class="modal-title">{% i18n "Create Virtual Machine" %}
+                                                        ({{ flavor.label }})</h4>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "Storage" %}</label>
+                                                <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
 
-                                                    <div class="col-sm-6">
-                                                        <select name="storage" class="form-control">
-                                                            {% if storages.size %}
-                                                                {% for storage in storages %}
-                                                                    <option value="{{ storage.name }}">{{ storage.name }}</option>
+                                                        <div class="col-sm-6">
+                                                            <input type="text" class="form-control" name="name"
+                                                                placeholder="{% i18n "Name" %}" maxlength="14" required
+                                                                pattern="[a-zA-Z0-9\.\-_]+">
+                                                            <input type="hidden" name="vcpu" value="{{ flavor.vcpu }}">
+                                                            <input type="hidden" name="memory" value="{{ flavor.memory }}">
+                                                            <input type="hidden" name="hdd_size" value="{{ flavor.disk }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "Storage" %}</label>
+
+                                                        <div class="col-sm-6">
+                                                            <select name="storage" class="form-control">
+                                                                {% if storages.size %}
+                                                                    {% for storage in storages %}
+                                                                        <option value="{{ storage.name }}">{{ storage.name }}</option>
+                                                                    {% endfor %}
+                                                                {% else %}
+                                                                    <option value="">{% i18n "None" %}</option>
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group meta-prealloc">
+                                                        <label class="col-sm-3 control-label">{% i18n "Metadata" %}</label>
+
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" name="meta_prealloc" title="Metadata preallocation" value="true">
+                                                        </div>
+                                                        <label class="col-lg-1 control-label">{% i18n "Image" %}</label>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
+
+                                                        <div class="col-sm-6">
+                                                            <select name="networks" class="form-control">
+                                                                {% for network in networks %}
+                                                                    <option value="{{ network.name }}">{{ network.name }}</option>
                                                                 {% endfor %}
-                                                            {% else %}
-                                                                <option value="">{% i18n "None" %}</option>
-                                                            {% endif %}
-                                                        </select>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="form-group meta-prealloc">
-                                                    <label class="col-sm-3 control-label">{% i18n "Metadata" %}</label>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "MAC" %}</label>
 
-                                                    <div class="col-sm-6">
-                                                        <input type="checkbox" name="meta_prealloc" title="Metadata preallocation" value="true">
+                                                        <div class="col-sm-6">
+                                                            <input type="text" class="form-control" name="mac" maxlength="17"
+                                                                value="{{ mac_auto }}" required pattern="[a-zA-Z0-9:]+">
+                                                        </div>
                                                     </div>
-                                                    <label class="col-lg-1 control-label">{% i18n "Image" %}</label>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
 
-                                                    <div class="col-sm-6">
-                                                        <select name="networks" class="form-control">
-                                                            {% for network in networks %}
-                                                                <option value="{{ network.name }}">{{ network.name }}</option>
-                                                            {% endfor %}
-                                                        </select>
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" name="host_model" value="true" checked>
+                                                        </div>
+                                                        <label class="col-lg-1 control-label">{% i18n "CPU" %}</label>
                                                     </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "MAC" %}</label>
+                                                    <div class="form-group">
+                                                        <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
 
-                                                    <div class="col-sm-6">
-                                                        <input type="text" class="form-control" name="mac" maxlength="17"
-                                                               value="{{ mac_auto }}" required pattern="[a-zA-Z0-9:]+">
+                                                        <div class="col-sm-6">
+                                                            <input type="checkbox" name="virtio" value="true" checked>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
-
-                                                    <div class="col-sm-6">
-                                                        <input type="checkbox" name="host_model" value="true" checked>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default"
+                                                                data-dismiss="modal">{% i18n "Close" %}</button>
+                                                        {% if storages.size %}
+                                                            <button type="submit" class="btn btn-primary"
+                                                                    name="create">{% i18n "Create" %}</button>
+                                                        {% else %}
+                                                            <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
+                                                        {% endif %}
                                                     </div>
-                                                    <label class="col-lg-1 control-label">{% i18n "CPU" %}</label>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
-
-                                                    <div class="col-sm-6">
-                                                        <input type="checkbox" name="virtio" value="true" checked>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-default"
-                                                            data-dismiss="modal">{% i18n "Close" %}</button>
-                                                    {% if storages.size %}
-                                                        <button type="submit" class="btn btn-primary"
-                                                                name="create">{% i18n "Create" %}</button>
-                                                    {% else %}
-                                                        <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
-                                                    {% endif %}
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <a data-toggle="modal" href="#addVMflavor{{ forloop.counter }}"
-                                   class="btn btn-sm btn-success">{% i18n "Create" %}</a>
-                            </td>
-                            <td style="width:5px;">
-                                <form class="form-horizontal" action="" method="post" role="form">{{ csrf_token }}
-                                    <input type="hidden" name="flavor" value="{{ flavor.id }}">
-                                    <input type="submit" class="btn btn-sm btn-danger" name="delete_flavor"
-                                           value="{% i18n "Delete" %}"
-                                           onclick="return confirm('{% i18n "Are you sure?" %}')">
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="well">
-                <h4>{% i18n "You do not have any flavors" %}</h4>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Modal Custom Instance -->
-    <div class="modal fade" id="addCustom" tabindex="-1" role="dialog" aria-labelledby="addCustomLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{% i18n "Create Custom Instance" %}</h4>
+                                    <a data-toggle="modal" href="#addVMflavor{{ forloop.counter }}"
+                                    class="btn btn-sm btn-success">{% i18n "Create" %}</a>
+                                </td>
+                                <td style="width:5px;">
+                                    <form class="form-horizontal" action="" method="post" role="form">{{ csrf_token }}
+                                        <input type="hidden" name="flavor" value="{{ flavor.id }}">
+                                        <input type="submit" class="btn btn-sm btn-danger" name="delete_flavor"
+                                            value="{% i18n "Delete" %}"
+                                            onclick="return confirm('{% i18n "Are you sure?" %}')">
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
+            {% else %}
+                <div class="well">
+                    <h4>{% i18n "You do not have any flavors" %}</h4>
+                </div>
+            {% endif %}
+        </div>
 
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="name" placeholder="{% i18n "Name" %}"
-                                   maxlength="14" required pattern="[a-zA-Z0-9\.\-_]+">
-                        </div>
+        <!-- Modal Custom Instance -->
+        <div class="modal fade" id="addCustom" tabindex="-1" role="dialog" aria-labelledby="addCustomLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% i18n "Create Custom Instance" %}</h4>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
+                    <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
 
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
-                                   pattern="[0-9]">
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="name" placeholder="{% i18n "Name" %}"
+                                    maxlength="14" required pattern="[a-zA-Z0-9\.\-_]+">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
 
-                        <div class="col-sm-6">
-                            <input type="checkbox" name="host_model" value="true" checked>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
+                                    pattern="[0-9]">
+                            </div>
                         </div>
-                        <label class="col-sm-1 control-label">{% i18n "CPU" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
 
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
-                                   pattern="[0-9]+">
+                            <div class="col-sm-6">
+                                <input type="checkbox" name="host_model" value="true" checked>
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "CPU" %}</label>
                         </div>
-                        <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
 
-                        <div class="col-sm-6">
-                            <ul id="img-list">
-                                <!-- populated from javascript -->
-                            </ul>
-                            <input id="images" name="images" type="hidden" value=""/>
-                            <select id="image-control" name="image-control" class="form-control" multiple="multiple">
-                                {% if get_images.size %}
-                                    {% for img in get_images %}
-                                        <option value="{{ img.path }}">{{ img.name }}</option>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
+                                    pattern="[0-9]+">
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
+
+                            <div class="col-sm-6">
+                                <ul id="img-list">
+                                    <!-- populated from javascript -->
+                                </ul>
+                                <input id="images" name="images" type="hidden" value=""/>
+                                <select id="image-control" name="image-control" class="form-control" multiple="multiple">
+                                    {% if get_images.size %}
+                                        {% for img in get_images %}
+                                            <option value="{{ img.path }}">{{ img.name }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="">{% i18n "None" %}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "HDD cache mode" %}</label>
+
+                            <div class="col-sm-6">
+                                <select id="cache_mode" name="cache_mode" class="form-control">
+                                    {% for mode, name in cache_modes %}
+                                        <option value="{{ mode }}">{{name}}</option>
                                     {% endfor %}
-                                {% else %}
-                                    <option value="">{% i18n "None" %}</option>
-                                {% endif %}
-                            </select>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "HDD cache mode" %}</label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
 
-                        <div class="col-sm-6">
-                            <select id="cache_mode" name="cache_mode" class="form-control">
-                                {% for mode, name in cache_modes %}
-                                    <option value="{{ mode }}">{{name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
-
-                        <div class="col-sm-6">
-                            <ul id="net-list">
-                                <!-- populated from javascript -->
-                            </ul>
-                            <input id="networks" type="hidden" name="networks" value=""/>
-                            <select id="network-control" name="network-control" class="form-control"
-                                    multiple="multiple">
-                                {% for network in networks %}
-                                    <option value="{{ network.name }}">{{ network.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="checkbox" name="virtio" value="true" checked>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
-                        {% if storages.size %}
-                            <button type="submit" class="btn btn-primary" name="create"
-                                    value="1">{% i18n "Create" %}</button>
-                        {% else %}
-                            <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <!-- Modal Flavor -->
-    <div class="modal fade" id="addFlavor" tabindex="-1" role="dialog" aria-labelledby="addFlavorLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{% i18n "Add New Flavor" %}</h4>
-                </div>
-                <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" name="label" class="form-control" placeholder="Micro" maxlength="20"
-                                   required pattern="[a-zA-Z0-9]+">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
-                                   pattern="[0-9]">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
-                                   pattern="[0-9]+">
-                        </div>
-                        <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="disk" value="10" maxlength="3" required
-                                   pattern="[0-9]+">
-                        </div>
-                        <label class="col-sm-1 control-label">{% i18n "GiB" %}</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
-                        <button type="submit" class="btn btn-primary" name="create_flavor">{% i18n "Add" %}</button>
-                    </div>
-                </form>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <!-- Modal From template -->
-    <div class="modal fade" id="addFromTemp" tabindex="-1" role="dialog" aria-labelledby="addCustomLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{% i18n "Create Instance From Template Image" %}</h4>
-                </div>
-                <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="name" placeholder="{% i18n "Name" %}"
-                                   maxlength="14" required pattern="[a-zA-Z0-9\.\-_]+">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
-                                   pattern="[0-9]">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="checkbox" name="host_model" value="true" checked>
-                        </div>
-                        <label class="col-sm-1 control-label">{% i18n "CPU" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
-                                   pattern="[0-9]+">
-                        </div>
-                        <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
-
-                        <div class="col-sm-6">
-                            <select name="template" class="form-control">
-                                {% if get_images.size %}
-                                    {% for img in get_images %}
-                                        <option value="{{ img.path }}">{{ img.name }}</option>
+                            <div class="col-sm-6">
+                                <ul id="net-list">
+                                    <!-- populated from javascript -->
+                                </ul>
+                                <input id="networks" type="hidden" name="networks" value=""/>
+                                <select id="network-control" name="network-control" class="form-control"
+                                        multiple="multiple">
+                                    {% for network in networks %}
+                                        <option value="{{ network.name }}">{{ network.name }}</option>
                                     {% endfor %}
-                                {% else %}
-                                    <option value="">{% i18n "None" %}</option>
-                                {% endif %}
-                            </select>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "HDD cache mode" %}</label>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
 
-                        <div class="col-sm-6">
-                            <select id="cache_mode" name="cache_mode" class="form-control">
-                                {% for mode, name in cache_modes %}
-                                    <option value="{{ mode }}">{{ name }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="col-sm-6">
+                                <input type="checkbox" name="virtio" value="true" checked>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group meta-prealloc">
-                        <label class="col-sm-3 control-label">{% i18n "Metadata" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="checkbox" name="meta_prealloc" title="Metadata preallocation" value="true">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
+                            {% if storages.size %}
+                                <button type="submit" class="btn btn-primary" name="create"
+                                        value="1">{% i18n "Create" %}</button>
+                            {% else %}
+                                <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
+                            {% endif %}
                         </div>
-                        <label class="col-lg-1 control-label">{% i18n "Image" %}</label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
-
-                        <div class="col-sm-6">
-                            <select name="networks" class="form-control">
-                                {% for network in networks %}
-                                    <option value="{{ network.name }}">{{ network.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
-
-                        <div class="col-sm-6">
-                            <input type="checkbox" name="virtio" value="true" checked>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
-                        {% if storages.size %}
-                            <button type="submit" class="btn btn-primary" name="create"
-                                    value="1">{% i18n "Create" %}</button>
-                        {% else %}
-                            <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <!-- Modal Flavor -->
-    <div class="modal fade" id="addFromXML" tabindex="-1" role="dialog" aria-labelledby="addFromXMLLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">{% i18n "Create Instance From XML" %}</h4>
+                    </form>
                 </div>
-                <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
-                    <div class="form-group">
-                        <div class="col-sm-12">
-                            <textarea id="xmltextarea" name="from_xml"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
-                        <button type="submit" class="btn btn-primary" name="create_xml">{% i18n "Create" %}</button>
-                    </div>
-                </form>
+                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-content -->
+            <!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- Modal Flavor -->
+        <div class="modal fade" id="addFlavor" tabindex="-1" role="dialog" aria-labelledby="addFlavorLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% i18n "Add New Flavor" %}</h4>
+                    </div>
+                    <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" name="label" class="form-control" placeholder="Micro" maxlength="20"
+                                    required pattern="[a-zA-Z0-9]+">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
+                                    pattern="[0-9]">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
+                                    pattern="[0-9]+">
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="disk" value="10" maxlength="3" required
+                                    pattern="[0-9]+">
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "GiB" %}</label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
+                            <button type="submit" class="btn btn-primary" name="create_flavor">{% i18n "Add" %}</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- Modal From template -->
+        <div class="modal fade" id="addFromTemp" tabindex="-1" role="dialog" aria-labelledby="addCustomLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% i18n "Create Instance From Template Image" %}</h4>
+                    </div>
+                    <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Name" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="name" placeholder="{% i18n "Name" %}"
+                                    maxlength="14" required pattern="[a-zA-Z0-9\.\-_]+">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "VCPU" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="vcpu" value="1" maxlength="1" required
+                                    pattern="[0-9]">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Host-Model" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="checkbox" name="host_model" value="true" checked>
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "CPU" %}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "RAM" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="memory" value="512" maxlength="5" required
+                                    pattern="[0-9]+">
+                            </div>
+                            <label class="col-sm-1 control-label">{% i18n "MiB" %}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "HDD" %}</label>
+
+                            <div class="col-sm-6">
+                                <select name="template" class="form-control">
+                                    {% if get_images.size %}
+                                        {% for img in get_images %}
+                                            <option value="{{ img.path }}">{{ img.name }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option value="">{% i18n "None" %}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "HDD cache mode" %}</label>
+
+                            <div class="col-sm-6">
+                                <select id="cache_mode" name="cache_mode" class="form-control">
+                                    {% for mode, name in cache_modes %}
+                                        <option value="{{ mode }}">{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group meta-prealloc">
+                            <label class="col-sm-3 control-label">{% i18n "Metadata" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="checkbox" name="meta_prealloc" title="Metadata preallocation" value="true">
+                            </div>
+                            <label class="col-lg-1 control-label">{% i18n "Image" %}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "Network" %}</label>
+
+                            <div class="col-sm-6">
+                                <select name="networks" class="form-control">
+                                    {% for network in networks %}
+                                        <option value="{{ network.name }}">{{ network.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">{% i18n "VirtIO" %}</label>
+
+                            <div class="col-sm-6">
+                                <input type="checkbox" name="virtio" value="true" checked>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
+                            {% if storages.size %}
+                                <button type="submit" class="btn btn-primary" name="create"
+                                        value="1">{% i18n "Create" %}</button>
+                            {% else %}
+                                <button class="btn btn-primary disabled">{% i18n "Create" %}</button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- Modal Flavor -->
+        <div class="modal fade" id="addFromXML" tabindex="-1" role="dialog" aria-labelledby="addFromXMLLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">{% i18n "Create Instance From XML" %}</h4>
+                    </div>
+                    <form class="form-horizontal" method="post" role="form">{{ csrf_token }}
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <textarea id="xmltextarea" name="from_xml"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{% i18n "Close" %}</button>
+                            <button type="submit" class="btn btn-primary" name="create_xml">{% i18n "Create" %}</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+    {% else %}
+        <div class="main col-xs-12 col-sm-9">
+            {% i18n "At the moment it is not possible to create new instances via the %1 hypervisor." _(driver) %}
         </div>
-        <!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+    {% endif %}
 
 {% endblock %}
 {% block script %}
@@ -575,4 +585,5 @@
         });
     </script>
     {% include 'sidebar_close.html' %}
+
 {% endblock %}

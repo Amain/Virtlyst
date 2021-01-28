@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/bin/cutelyst2",
+            "args": [ "-r", "--server", "--", "--ini", "${workspaceFolder}/debug-config.ini" ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Additional libs for gdb",
+                    "text": "set solib-search-path ${workspaceFolder}/build/src"
+                },
+                {
+                    "description": "Debug child process. Main process does not open libVirtlyst.so, the forked processes do.",
+                    "text": "set follow-fork-mode child"
+                }               
+            ],/*
+            "serverReadyAction": {
+                "pattern": "WSGI socket 0 bound to TCP address 0.0.0.0:([0-9]+)",
+                "uriFormat": "http://localhost:%s",
+                "webRoot": "${workspaceFolder}/root",
+                //"action": "debugWithChrome",
+                "action": "openExternally"
+            }*/
+        }
+    ]
+}
