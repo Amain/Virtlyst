@@ -52,6 +52,9 @@ public:
         qemu,
         DriverTypeFirst = xen, DriverTypeLast = qemu
     }; Q_ENUM(DriverType);
+
+    static const QString SSH_CONNECT_URL_ARGS;
+
     ServerConn(QObject *parent) : QObject(parent) {}
     ~ServerConn() {}
 
@@ -88,6 +91,8 @@ public:
 
     ServerConn* server(const QString &id);
 
+    bool hasServers();
+
     Connection *connection(const QString &id, QObject *parent);
 
     static QString prettyKibiBytes(quint64 kibiBytes);
@@ -103,6 +108,7 @@ private:
 
     QMap<QString, ServerConn *> m_connections;
     QString m_dbPath;
+    QString m_sessionPath;
 };
 
 #endif //VIRTLYST_H

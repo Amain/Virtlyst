@@ -1,0 +1,24 @@
+Source: virtlyst
+Priority: optional
+Maintainer: Johan van Zoomeren <amain@debwrt.net>
+Build-Depends: debhelper-compat (= 12), cmake, g++, qtbase5-dev, pkg-config, libvirt-dev, quilt, cutelyst2-dev
+Standards-Version: 4.4.1
+Section: libs
+Homepage: https://github.com/Amain/Virtlyst/wiki
+Vcs-Browser: https://github.com/Amain/Virtlyst
+Vcs-Git: https://github.com/amain/Virtlyst.git
+
+Package: virtlyst
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}
+Description: Web interface to manage virtual machines with libvirt
+ Don't let your virtualization management use more resources than your main virtualized needs.
+ .
+ * Ideal for small deployments where simplicity is key to virtualization usage
+ * Low memory footprint, around 5 MiB of RAM used
+ * Low CPU usage
+ * Look and feel easly customized with templates
+ * Xen
+ * Qemu/KVM
+ * Qemu

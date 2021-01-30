@@ -21,6 +21,7 @@
 #include <Cutelyst/Plugins/Utils/Sql>
 #include <Cutelyst/Plugins/StatusMessage>
 #include <Cutelyst/Plugins/Session/Session>
+#include <Cutelyst/Plugins/Session/SessionStoreFile>
 #include <Cutelyst/Plugins/Authentication/credentialpassword.h>
 #include <Cutelyst/Plugins/Authentication/authenticationrealm.h>
 #include <grantlee/engine.h>
@@ -121,7 +122,14 @@ bool Virtlyst::init()
 
     auto realm = new AuthenticationRealm(store, password);
 
-    new Session(this);
+    auto session = new Session(this);
+    auto sessionPath = config(QStringLiteral("SessionPath"));
+    if(!sessionPath.isNull()) {
+        qCDebug(VIRTLYST) << "Sessions" << sessionPath.toString();
+        auto fstore = new SessionStoreFile();
+        fstore->setSessionDir(sessionPath.toString());
+        session->setStorage(fstore);
+    }
 
     auto auth = new Authentication(this);
     auth->addRealm(realm);
@@ -169,6 +177,11 @@ QVector<ServerConn *> Virtlyst::servers(QObject *parent)
 ServerConn* Virtlyst::server(const QString &id)
 {
     return m_connections.value(id);
+}
+
+bool Virtlyst::hasServers()
+{
+    return (m_connections.count() > 0);
 }
 
 Connection *Virtlyst::connection(const QString &id, QObject *parent)
@@ -289,7 +302,7 @@ void Virtlyst::updateConnections()
             url = sdriver + QStringLiteral(":///system");
             break;
         case ServerConn::ConnSSH:
-            url = sdriver + QStringLiteral("+ssh:///system");
+            url = sdriver + QStringLiteral("+ssh:///system?") + ServerConn::SSH_CONNECT_URL_ARGS;
             url.setHost(hostname);
             url.setUserName(login);
             break;
@@ -402,6 +415,8 @@ bool Virtlyst::createDB()
 
     return true;
 }
+
+const QString ServerConn::SSH_CONNECT_URL_ARGS = "no_tty=1";
 
 bool ServerConn::alive()
 {

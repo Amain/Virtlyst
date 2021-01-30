@@ -1,0 +1,4 @@
+virtlyst
+*.log
+debhelper-build-stamp
+*.substvars

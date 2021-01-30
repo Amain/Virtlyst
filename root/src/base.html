@@ -19,13 +19,17 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Virtlyst</a>
+            <!--<a class="navbar-brand" href="/">Virtlyst</a>-->
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li>
                     <a href="/infrastructure"
                        title="{% i18n "Show all host and vm's" %}">{% i18n "Infrastructure" %}</a>
+                </li>
+                <li>
+                    <a href="/server"
+                       title="{% i18n "Manage users" %}">{% i18n "Servers" %}</a>
                 </li>
                 <li>
                     <a href="/users"
@@ -36,7 +40,7 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if user.id %}
                     <li class="">
-                        <a href="/logout">{% i18n "Sign out" %}</a>
+                        <a href="/logout">{% i18n "Virtlyst sign out" %}</a>
                     </li>
                 {% else %}
                     <li class="">

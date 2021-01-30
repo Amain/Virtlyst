@@ -27,3 +27,5 @@ target_link_libraries(Virtlyst
     ${LIBVIRT_LIBRARIES}
 )
 
+install(TARGETS Virtlyst
+	DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/app)

@@ -1,0 +1,3 @@
+virtlyst-dbgsym_3.0.0-1xen_amd64.ddeb debug optional automatic=yes
+virtlyst_3.0.0-1xen_amd64.buildinfo libs optional
+virtlyst_3.0.0-1xen_amd64.deb libs optional

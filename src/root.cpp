@@ -38,7 +38,11 @@ Root::~Root()
 
 void Root::index(Context *c)
 {
-    c->response()->redirect(c->uriForAction(QStringLiteral("/server/index")));
+    if(m_virtlyst->hasServers()) {
+        c->response()->redirect(c->uriForAction(QStringLiteral("/infrastructure/index")));
+    } else {
+        c->response()->redirect(c->uriForAction(QStringLiteral("/server/index")));
+    }
 }
 
 void Root::login(Context *c)
