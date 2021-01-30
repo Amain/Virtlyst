@@ -24,7 +24,7 @@ case "$1" in
 	rm -rf /var/lib/virtlyst
         if [ -x /usr/sbin/userdel ]
         then
-	    /usr/sbin/userdel virtlyst
+	    /usr/sbin/userdel virtlyst || true
         fi
     ;;
 
