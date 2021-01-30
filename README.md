@@ -40,15 +40,20 @@ The virtlyst user is automatically added to the libvirt groupt (if exists) to al
 
 When connectiong to remote hypervisors using SSH, Virtlyst/libvirt requires a password less account on each remote server. First create a public/private key pair on the Virtlyst server. And then upload the generated public key to each server you want to manage with Virtlyst.
 
+```bash
 $ sudo -u virtlyst -s /bin/bash
 $ cd /var/lib/virtlyst
 $ ssh-keygen
+```
 
 And for each user@host, repeat:
+```bash
 $ ssh-copy-id <user>@<host>
 $ ssh <user>@host>
+```
 
 Note: The user <user> on the remote system must be in the group 'libvirt', in order to be allowed to connect to libvirtd on that system.
+ 
 Note: first time SSH login is required to make sure the host-key of the remote server is accepted and stored in /var/lib/libvirt/.ssh/known_hosts.
 
 ## Using Virtlyst
@@ -81,18 +86,24 @@ Browse to 'Infrastructure' to manage the virtual machines/domains on the registe
 
 ### Debian way
 
+```bash
 $ git clone https://github.com/Amain/Virtlyst.git
 $ git checkout tags/<tags> (optional)
 $ apt-get install <...build dependencies from debian/control...>
 $ dpkg-buildpackage -b -rfakeroot --no-sign
+```
+Note: requires both the cutelyst2 and cutelyst2-dev Debian packages to be installed, see https://github.com/Amain/cutelyst.
 
 ### CMake way
 
+```bash
 $ mkdir build
 $ cd build
 $ cmake ../
 $ cmake --build .
 $ cmake --install . --prefix <install-dir>
+```
+Note: requires cutelyst2 shared libraries and development headers. The Debian packages above can be used, as well as a custom compile of cutelyst2.
 
 ### IDE support
 
