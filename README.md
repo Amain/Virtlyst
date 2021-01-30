@@ -53,6 +53,7 @@ $ ssh <user>@host>
 ```
 
 Note: The user <user> on the remote system must be in the group 'libvirt', in order to be allowed to connect to libvirtd on that system.
+ 
 Note: first time SSH login is required to make sure the host-key of the remote server is accepted and stored in /var/lib/libvirt/.ssh/known_hosts.
 
 ## Using Virtlyst
