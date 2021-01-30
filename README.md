@@ -91,6 +91,7 @@ $ git checkout tags/<tags> (optional)
 $ apt-get install <...build dependencies from debian/control...>
 $ dpkg-buildpackage -b -rfakeroot --no-sign
 ```
+Note: requires both the cutelyst2 and cutelyst2-dev Debian packages to be installed, see https://github.com/Amain/cutelyst.
 
 ### CMake way
 
@@ -101,6 +102,7 @@ $ cmake ../
 $ cmake --build .
 $ cmake --install . --prefix <install-dir>
 ```
+Note: requires cutelyst2 shared libraries and development headers. The Debian packages above can be used, as well as a custom compile of cutelyst2.
 
 ### IDE support
 
